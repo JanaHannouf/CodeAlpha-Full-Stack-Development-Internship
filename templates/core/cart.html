@@ -1,0 +1,118 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background" id="cart-list">
+        <section class="cart">
+            <div class="cart-header">
+                <h2>Your Cart</h2>
+                <p class="cart-count"> You have <span style="font-weight: bold;"> {{ totalCartItems }} </span> item{{ totalCartItems|pluralize:"s" }} in your cart <i class="fa fa-shopping-cart"></i></p>
+            </div>
+            <div class="cart-items">
+                {% for product_id, item in cart_data.items %}
+                    <div class="cart-item">
+                        <img src="{{ item.image }}" alt="{{ item.title }}">
+                        <div class="cart-item-details">
+                            <h3> <a href="{% url 'core:product_details' item.pid %}" class="cart-title-link"> {{ item.title }} </a></h3>
+                            <p>Price: ${{ item.price|floatformat:2 }}</p>
+                            <div class="quantity-control">
+                                <button class="decrease">-</button>
+                                <input type="number" value="{{ item.qty }}" min="1" class="product-qty-{{ product_id }}">
+                                <button class="increase">+</button>
+                            </div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <p class="item-total">Total: ${% widthratio item.price 1 item.qty %}</p>
+                            <button class="refresh-item" data-product="{{ product_id }}"><i class="fa fa-refresh"></i> Refresh</button>
+                            <button class="remove-item" data-product="{{ product_id }}"><i class="fa fa-trash"></i> Remove</button>
+                        </div>
+                    </div>
+                    {% empty %}
+                       <p class="canceled" style="font-size: large;"> Your cart is empty... </p>
+                {% endfor %}
+            </div>
+            <div class="cart-summary">
+                <p>Grand Total: ${{ cart_total_amount|floatformat:2 }}</p>
+                {% if totalCartItems > 0 %}
+                    <a id="checkout-link" class="checkout-link" href="{% url 'core:checkout' %}">Proceed to Checkout</a>
+                {% endif %}
+            </div>
+        </section>                             
+    </main>
+
+    <script>
+        // Increase and Decrease quantity buttons activation
+        $(document).ready(function() {
+            // Increase button functionality
+            $(".increase").on("click", function() {
+                let inputField = $(this).prev("input[type='number']");
+                let currentValue = parseInt(inputField.val());
+
+                if (!isNaN(currentValue)) {
+                    inputField.val(currentValue + 1);
+                }
+            });
+
+            // Decrease button functionality
+            $(".decrease").on("click", function() {
+                let inputField = $(this).next("input[type='number']");
+                let currentValue = parseInt(inputField.val());
+
+                if (!isNaN(currentValue) && currentValue > 1) {
+                    inputField.val(currentValue - 1);
+                }
+            });
+        });
+
+        // Remove Item Button Functionality
+        $(".remove-item").on("click", function(){
+            let product_id = $(this).attr("data-product")
+            let this_val = $(this)
+
+            console.log("Product ID:", product_id);
+
+            $.ajax({
+                url: "/delete-from-cart",
+                data: {
+                    "id" : product_id
+                },
+                dataType: "json",
+                beforeSend: function(){
+                    this_val.hide()
+                },
+                success: function(response){
+                    this_val.show()
+                    $(".cart-items-count").text(response.totalCartItems)
+                    $("#cart-list").html(response.data)
+                    location.reload();
+                }
+            })
+        })
+
+        // Refresh Item Button Functionality
+        $(".refresh-item").on("click", function(){
+            let product_id = $(this).attr("data-product")
+            let this_val = $(this)
+            let product_quantity = $(".product-qty-" + product_id).val()
+
+            console.log("Product ID:", product_id);
+            console.log("Product Quantity:", product_quantity);
+
+            $.ajax({
+                url: "/update-cart",
+                data: {
+                    "id" : product_id,
+                    "qty" : product_quantity
+                },
+                dataType: "json",
+                beforeSend: function(){
+                    this_val.hide()
+                },
+                success: function(response){
+                    this_val.show()
+                    $(".cart-items-count").text(response.totalCartItems)
+                    $("#cart-list").html(response.data)
+                }
+            })
+        })
+    </script>
+{% endblock content %}

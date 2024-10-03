@@ -1,0 +1,65 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Login | MyStore</title>
+    <link rel="stylesheet" href="{% static 'assets/CSS/ecommerceStyles.css' %}">
+    <!-- Font Awesome Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- jquery link -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <main class="login-background">
+        <div class="login-container">
+            <div class="login-box">
+                <div class="login-logo">
+                    <img src="{% static 'assets/images/logo.png' %}">
+                    <p>MyStore</p>
+                </div>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{message.tags}}">
+                            <strong>{{ message }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <script> 
+                    setTimeout (() => {
+                        $(".alert").alert("close")
+                    },3000)
+                </script>
+                <h2>Login to Your Account</h2>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" name="email" placeholder="Enter your email" required>
+                    </div>
+    
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" name="password" placeholder="Enter your password" required>
+                    </div>
+    
+                    <div class="remember-me">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">Remember Me</label>
+                    </div>
+    
+                    <button type="submit" class="login-btn">Login</button>
+    
+                    <div class="extra-links">
+                        <a href="{% url 'userauths:password_reset' %}">Forgot Password?</a>
+                        <p>Don't have an account? <a href="{% url 'userauths:sign-up' %}">Register Here</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

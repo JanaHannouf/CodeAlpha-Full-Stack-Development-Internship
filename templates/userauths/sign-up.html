@@ -1,0 +1,73 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Sign Up - MyStore</title>
+    <link rel="stylesheet" href="{% static 'assets/CSS/ecommerceStyles.css' %}">
+    <!-- Font Awesome Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- jquery link -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <main class="login-background">
+        <div class="register-container">
+            <div class="register-box">
+                <div class="register-logo">
+                    <img src="{% static 'assets/images/logo.png' %}" alt="MyStore Logo">
+                    <p>MyStore</p>
+                </div>
+
+                {% if form.errors %}
+                <div class="alert alert-error">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <strong>{{ field }}: {{ error }}</strong><br>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <script> 
+                    setTimeout (() => {
+                        $(".alert").alert("close")
+                    },3000)
+                </script>
+                <h2>Create Your Account</h2>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        {{form.username}}
+                    </div>
+
+                    <div class="input-group">
+                        {{form.email}}
+                    </div>
+
+                    <div class="input-group">
+                        {{form.password1}}
+                    </div>
+
+                    <div class="input-group">
+                        {{form.password2}}
+                    </div>
+    
+                    <div class="agree-terms">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">I agree to the <a href="{% url 'core:terms' %}">Terms & Conditions</a></label>
+                    </div>
+    
+                    <button type="submit" class="register-btn">Register</button>
+    
+                    <div class="extra-links">
+                        <p>Already have an account? <a href="{% url 'userauths:sign-in' %}">Login Here</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

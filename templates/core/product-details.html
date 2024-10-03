@@ -1,0 +1,277 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <div class="product-details-container">
+            <!-- Left: Image Gallery -->
+            <div class="product-image-gallery">
+                <div class="image-content">
+                    <img id="current-image" src="{{ product.image.url }}" alt="{{ product.title }}">
+                </div>
+                
+                <div class="image-thumbnails">
+                    <img class="thumbnail" src="{{ product.image.url }}" alt="{{ product.title }}" onclick="displayImage('{{ product.image.url }}')">
+                    {% for p in product_images %}
+                        <img class="thumbnail" src="{{ p.images.url }}" alt="{{ product.title }}" onclick="displayImage('{{ p.images.url }}')">
+                    {% endfor %}
+                </div>
+                
+                <button id="prevBtn" class="swipe-button">&#60;</button>
+                <button id="nextBtn" class="swipe-button">&#62;</button>
+            </div>
+
+            <!-- Right: Product Info -->
+            <div class="product-info">
+                <span class="product-label">{{ product.get_percentage }}% Sale Off</span>
+                <h1>{{ product.title }}</h1>
+
+                <!-- Rating Section -->
+                <div class="product-rating">
+                    <span class="rating-stars">
+                        {% if average_rating.rating %}
+                            {% for star in "1"|ljust:average_rating.rating %}
+                                <i class="fa fa-star"></i>
+                            {% endfor %}
+                        {% else %}
+                            <i class="fa fa-star-o"></i>
+                            <i class="fa fa-star-o"></i>
+                            <i class="fa fa-star-o"></i>
+                            <i class="fa fa-star-o"></i>
+                            <i class="fa fa-star-o"></i>
+                        {% endif %}
+                    </span>
+                    <span class="rating-count">({{ reviews.count }} review{{ reviews.count|pluralize:"s" }})</span>
+                </div>
+
+                <p class="product-price">
+                    <strong>${{ product.price }}</strong>
+                    <span class="product-old-price">${{ product.old_price }}</span>
+                    <span class="product-discount">{{ product.get_percentage }}% OFF</span>
+                </p>
+                <p>{{ product.description|truncatechars:150 }}</p>
+
+                <p class="product-stock">
+                    <strong>{{ product.stock_count }}</strong> item{{ product.stock_count|pluralize:"s" }} in stock
+                </p>
+
+                <p class="tags"> 
+                    Tags: 
+                    {% for tag in product.tags.all %}
+                        <a href="{% url 'core:tags' tag.slug%}" class="tags-link">
+                            #{{ tag.name }}
+                        </a>,
+                    {% endfor %}
+                </p>
+
+                <!--<div class="product-sizes">
+                    <span>Size/Weight:</span>
+                    <button>50g</button>
+                    <button class="active">60g</button>
+                    <button>80g</button>
+                    <button>100g</button>
+                    <button>150g</button>
+                </div>-->
+
+                <div class="quantity-section">
+                    <label> Quantity: </label>
+                    <input type="number" value="1" min="1" class="product-quantity product-quantity-{{ product.id }}" id="p-quantity">
+                </div>
+                
+                <div>
+                    <input type="hidden" value="{{product.id}}" class="product-id-{{ product.id }}">
+                    <input type="hidden" value="{{product.pid}}" class="product-pid-{{ product.id }}">
+                    <input type="hidden" value="{{product.title}}" class="product-title-{{ product.id }}">
+                    <input type="hidden" value="{{product.price}}" class="product-price-{{ product.id }}">
+                    <input type="hidden" value="{{product.image.url}}" class="product-image-{{ product.id }}">
+                    <button class="add-to-cart-btn" id="add-to-cart-btn" data-index="{{product.id}}">Add to Cart &nbsp;<i class="fa fa-shopping-cart"></i></button>
+                    <button class="add-to-wishlist-btn" id="add-to-wishlist" data-product-item="{{ product.id }}">
+                        Add to Wishlist &nbsp;<i class="fa fa-heart-o"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Description and Reviews Section -->
+        <div class="product-details-tabs">
+            <button class="product-tab active" onclick="openTab('description')">Full Description</button>
+            <button class="product-tab" onclick="openTab('reviews')">Reviews</button>
+        </div>
+
+        <div class="product-tab-content" id="description" style="display: block;">
+            <h2>Product Description</h2>
+            <p>{{ product.description|safe }}</p>
+        </div>
+
+        <div class="product-tab-content" id="reviews" style="display: none;">
+            <h2>Customer Reviews</h2>
+        
+            <!-- Average Rating Section -->
+            <div class="average-rating-section">
+                <h3>Average Rating</h3>
+                <div class="average-rating-value">
+                    <span class="average-rating-numb text-success">{{ average_rating.rating|floatformat:1 }} out of 5.0</span>
+                </div>
+                <p class="total-reviews">{{ reviews.count }} customer review{{ reviews.count|pluralize:"s" }}</p>
+            </div>
+        
+            <!-- Customer Reviews -->
+            
+            <div class="customer-reviews-container">
+                {% for review in reviews %}
+                    <div class="review">
+                        <div class="review-header">
+                            <!-- Profile Picture -->
+                             {% if profile.image %}
+                             <img class="review-profile-picture" src="{{ profile.image.url }}" alt="{{ review.user.username|title }}'s profile picture">
+                             {% else %}
+                                <img class="review-profile-picture" src="{% static 'assets/images/user-profile.jpg' %}" alt="{{ review.user.username|title }}'s profile picture">
+                            {% endif %}
+                            <!-- Review Author and Details -->
+                            <span class="review-author">{{ review.user.username|title }}</span>
+                            <span class="review-date">{{ review.date|date:"d M, Y" }}</span>
+                            <span class="review-rating">
+                                {% for star in review.rating|ljust:review.rating %}
+                                    <i class="fa fa-star"></i>
+                                {% endfor %}
+                            </span>
+                        </div>
+                        <p>{{ review.review }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            {% if make_review == True %}
+            {% if request.user.is_authenticated %}
+                <!-- Add a Review Section -->
+                <div class="add-review-section">
+                    <h3 class="add-review-title">Add Your Review</h3>
+                    <strong class="text-success" id="review-response">  </strong>
+                    <form action="{% url 'core:ajax_add_review' product.pid%}" method="POST" id="commentForm" class="hide-comment-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{review_form.review}}
+                        </div>
+                        <div class="form-group">
+                            {{review_form.rating}}
+                        </div>
+                        <button type="submit" class="btn">Submit Review</button>
+                    </form>
+                </div>
+            {% endif %}
+            {% endif %}
+        </div>
+                
+        <!-- Related Products Section -->
+        <div class="related-products-section">
+            {% if products %}
+            <h2>Related Products</h2>
+            {% endif %}
+            <div class="related-products-container">
+                {% for prod in products %}
+                    <a href="{% url 'core:product_details' prod.pid %}">
+                        <div class="related-product-card">
+                            <img src="{{ prod.image.url }}" alt="{{ prod.title }}">
+                            <h3>{{ prod.title }}</h3>
+                            
+                            <!-- Product Rating (star system) -->
+                            <div class="related-product-rating">
+                                    <i class="fa fa-star"></i> <!-- Filled star -->
+                                    <i class="fa fa-star"></i> <!-- Filled star -->
+                                    <i class="fa fa-star"></i> <!-- Filled star -->
+                                    <i class="fa fa-star"></i> <!-- Filled star -->
+                                    <i class="fa fa-star-o"></i> <!-- Empty star -->
+                            </div>
+                            
+                            <!-- Pricing Section -->
+                            <p class="related-product-price">
+                                <span class="related-current-price">${{ prod.price }}</span>
+                                <span class="related-old-price">${{ prod.old_price }}</span>
+                            </p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Image Gallery Script
+        const images = [
+            "{{ product.image.url }}",
+            {% for p in product_images %}
+            "{{ p.images.url }}",
+            {% endfor %}
+        ];
+        
+        let currentIndex = 0;
+
+        function changeImage(direction) {
+            currentIndex = (currentIndex + direction + images.length) % images.length;
+            document.getElementById('current-image').src = images[currentIndex];
+        }
+
+        function displayImage(imageUrl) {
+            document.getElementById('current-image').src = imageUrl;
+        }
+
+        document.getElementById('prevBtn').addEventListener('click', () => changeImage(-1));
+        document.getElementById('nextBtn').addEventListener('click', () => changeImage(1));
+
+        // Tab Switching Functionality
+        function openTab(tabName) {
+            const tabs = document.querySelectorAll('.product-tab-content');
+            const tabButtons = document.querySelectorAll('.product-tab');
+
+            tabs.forEach(tab => tab.style.display = 'none');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabName).style.display = 'block';
+            document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add('active');
+        }
+
+        const monthNames = ["Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
+        //Adding Review
+        $("#commentForm").submit(function(element){
+            element.preventDefault();
+
+            let dt = new Date();
+            let time = dt.getDay() + " " + monthNames[dt.getUTCMonth()] + ", " + dt.getFullYear()
+
+            $.ajax({
+                data: $(this).serialize(),
+                method: $(this).attr("method"),
+                url: $(this).attr("action"),
+                dataType: "json",
+
+                success: function(response){
+                    console.log("Comment Saved to DB...");
+
+                    if(response.bool == true){
+                        $("#review-response").html("Your review is added successfully.")
+                        $(".hide-comment-form").hide()
+                        $(".add-review-title").hide()
+
+                        let _html = '<div class="review">'
+                            _html += '<div class="review-header">'
+                            _html += '<img class="review-profile-picture" src="https://as1.ftcdn.net/v2/jpg/03/39/45/96/1000_F_339459697_XAFacNQmwnvJRqe1Fe9VOptPWMUxlZP8.jpg" alt="profile picture">'
+                            _html += '<span class="review-author">'+ response.context.user +'</span>'
+                            _html += '<span class="review-date">'+ time +'</span>'
+                            _html += '<span class="review-rating">' 
+                            
+                            for(let i=1; i <= response.context.rating; i++){
+                                _html += '<i class="fa fa-star"></i>'
+                            }
+
+                            _html += '</span>'
+                            _html += '</div>'
+                            _html += '<p>'+ response.context.review +'</p>'
+                            _html += '</div>'
+
+                        $(".customer-reviews-container").prepend(_html)
+                    }
+                }
+            })
+        })
+    </script>
+{% endblock content %}

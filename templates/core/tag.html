@@ -1,0 +1,45 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <div class="category-container">
+            <section class="featured-products">
+                <!-- Selected Category Title -->
+                <h2 id="category-title">Selected Tag: <span class="underline">#{{ tag.name }}</span></h2>
+                <p class="result">
+                    We found <strong>{{ products.count }}</strong> item{{ products.count|pluralize:"s" }} for you!
+                </p>
+                <div class="product-grid">
+                    {% for product in products %}
+                        <div class="product-item">
+                            <a href="{% url 'core:product_details' product.pid%}">
+                                <div class="discount-label">{{ product.get_percentage }}% OFF</div>
+                                <img src="{{ product.image.url }}" alt="{{ product.title }}">
+                                <p class="product-category">{{product.category}}</p>
+                                <h3>{{ product.title }}</h3>
+                                <div class="price-container">
+                                    <p class="price-before">${{ product.old_price }}</p>
+                                    <p class="price-after">${{ product.price }}</p>
+                                </div>
+                            </a>
+                            <div class="button-container">
+                                <input type="hidden" value="1" id="p-quantity" class="product-quantity-{{ product.id }}">
+                                <input type="hidden" value="{{ product.id }}" class="product-id-{{ product.id }}">
+                                <input type="hidden" value="{{ product.pid }}" class="product-pid-{{ product.id }}">
+                                <input type="hidden" value="{{ product.title }}" class="product-title-{{ product.id }}">
+                                <input type="hidden" value="{{ product.price }}" class="product-price-{{ product.id }}">
+                                <input type="hidden" value="{{ product.image.url }}" class="product-image-{{ product.id }}">
+                                <button class="add-to-cart-button add-to-cart-btn" id="add-to-cart-btn" data-index="{{ product.id }}">
+                                    Add to Cart &nbsp;&nbsp;<i class="fa fa-shopping-cart"></i>
+                                </button>
+                                <button class="add-to-wishlist-button" id="add-to-wishlist" data-product-item="{{ product.id }}">
+                                    Add to Wishlist &nbsp;<i class="fa fa-heart-o"></i>
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </main>
+{% endblock content %}

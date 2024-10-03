@@ -1,0 +1,35 @@
+    <main class="main-background" id="cart-list">
+        <section class="cart">
+            <div class="cart-header">
+                <h2>Your Cart</h2>
+                <p class="cart-count"> You have <span style="font-weight: bold;"> {{ totalCartItems }} </span> item{{ totalCartItems|pluralize:"s" }} in your cart <i class="fa fa-shopping-cart"></i></p>
+            </div>
+            <div class="cart-items">
+                {% for product_id, item in cart_data.items %}
+                    <div class="cart-item">
+                        <img src="{{ item.image }}" alt="{{ item.title }}">
+                        <div class="cart-item-details">
+                            <h3> <a href="{% url 'core:product_details' item.pid%}" class="cart-title-link"> {{ item.title }} </a></h3>
+                            <p>Price: ${{ item.price|floatformat:2 }}</p>
+                            <div class="quantity-control">
+                                <button class="decrease">-</button>
+                                <input type="number" value="{{ item.qty }}" min="1">
+                                <button class="increase">+</button>
+                            </div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <p class="item-total">Total: ${% widthratio item.price 1 item.qty %}</p>
+                            <button class="refresh-item" data-product="{{ product_id }}"><i class="fa fa-refresh"></i> Refresh</button>
+                            <button class="remove-item" data-product="{{ product_id }}"><i class="fa fa-trash"></i> Remove</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="cart-summary">
+                <p>Grand Total: ${{ cart_total_amount|floatformat:2 }}</p>
+                {% if totalCartItems > 0 %}
+                    <a id="checkout-link" class="checkout-link" href="{% url 'core:checkout' %}">Proceed to Checkout</a>
+                {% endif %}
+            </div>
+        </section>                             
+    </main>

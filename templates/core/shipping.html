@@ -1,0 +1,84 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <div class="shipping-main">
+            <div class="shipping-header">
+                <div class="header-content">
+                    <h1>Shipping Information</h1>
+                    <p>Get all the details on our shipping policies and options.</p>
+                </div>
+            </div>
+        
+            <section class="shipping-policies">
+                <h2>Our Shipping Policies</h2>
+                <p>We offer a range of shipping options to suit your needs. Our goal is to ensure your order arrives on time and in perfect condition.</p>
+                <ul>
+                    <li>Domestic Shipping: Orders typically ship within 2-3 business days.</li>
+                    <li>International Shipping: Delivery times vary by destination.</li>
+                    <li>Free Shipping on orders over $50.</li>
+                    <li>We do not ship to P.O. boxes.</li>
+                </ul>
+            </section>
+        
+            <section class="shipping-options">
+                <h2>Shipping Options & Costs</h2>
+                <div class="option">
+                    <h3>Standard Shipping</h3>
+                    <p>Delivery in 5-7 business days</p>
+                    <p>Cost: $5.00</p>
+                </div>
+                <div class="option">
+                    <h3>Expedited Shipping</h3>
+                    <p>Delivery in 2-3 business days</p>
+                    <p>Cost: $10.00</p>
+                </div>
+                <div class="option">
+                    <h3>Next-Day Shipping</h3>
+                    <p>Delivery by the next business day</p>
+                    <p>Cost: $20.00</p>
+                </div>
+            </section>
+        
+            <section class="tracking-orders">
+                <h2>View Your Order Status</h2>
+                <p>To view the status of your order, please visit the <a href="{% url 'core:account' %}" class="shipping-links">Orders</a> section of your account.</p>
+                <ul>
+                    <li>Go to your <a href="{% url 'core:account' %}" class="shipping-links">Account Page</a></li>
+                    <li>Select the &nbsp; <strong>Orders</strong> &nbsp; section to view your order status</li>
+                </ul>
+            </section>
+        
+            <section class="shipping-faq">
+                <h2>Frequently Asked Questions</h2>
+                <div class="faq-item">
+                    <h3><i class="fa fa-question-circle"></i>&nbsp; How do I change my shipping address?</h3>
+                    <p>Contact our customer service team as soon as possible to update your shipping address.</p>
+                </div>
+                <div class="faq-item">
+                    <h3><i class="fa fa-question-circle"></i>&nbsp; Can I expedite my order after placing it?</h3>
+                    <p>Once an order is placed, we cannot guarantee changes to shipping methods. Please contact us for assistance.</p>
+                </div>
+                <div class="faq-item">
+                    <h3><i class="fa fa-question-circle"></i>&nbsp; What should I do if my order is delayed?</h3>
+                    <p>If your order status shows a delay, please contact our support team for assistance.</p>
+                </div>
+            </section>
+        
+            <section class="contact-info">
+                <h2>Need Assistance?</h2>
+                <p>For any shipping-related questions, please reach out to us:</p>
+                <ul>
+                    <li>Email: <a href="mailto:support@example.com" class="shipping-links">support@example.com</a></li>
+                    <li>Phone: +1 234 567 890</li>
+                    <li>Live Chat: <a href="#" class="shipping-links">Start Chat</a></li>
+                </ul>
+            </section>
+        
+            <section class="shipping-cta">
+                <h2>Ready to Shop?</h2>
+                <a href="{% url 'core:shop' %}" class="shipping-cta-button">Shop Now</a>
+            </section>
+        </div>
+    </main>
+{% endblock content %}

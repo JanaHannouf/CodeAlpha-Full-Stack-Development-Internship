@@ -1,0 +1,55 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <div class="help-center-main"> 
+            <div class="help-container">
+                <section class="help-search">
+                    <h1>How can we help you?</h1>
+                    <p class="suggestions">Popular topics: <a href="{% url 'core:shipping' %}">Shipping</a>, <a href="{% url 'core:returns' %}">Returns</a>, <a href="{% url 'core:account' %}">Account</a></p>
+                </section>
+    
+                <section class="faq">
+                    <h2>Frequently Asked Questions</h2>
+                    <div class="faq-item">
+                        <h3><i class="fa fa-question-circle"></i> How do I track my order?</h3>
+                        <p>To track your order, log in to your account, navigate to the "Orders" section, and select the order you want to track.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3><i class="fa fa-question-circle"></i> What is your return policy?</h3>
+                        <p>You can return items within 30 days of purchase. Please visit our <a href="{% url 'core:returns' %}" class="contact-us-link">Returns & Exchanges</a> page for more details.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3><i class="fa fa-question-circle"></i> How do I change my shipping address?</h3>
+                        <p>You can update your shipping address from the "Account Settings" section in your profile before placing an order.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3><i class="fa fa-question-circle"></i> How do I contact customer support?</h3>
+                        <p>If you need further assistance, please visit our <a href="{% url 'core:contact' %}" class="contact-us-link">Contact Us</a> page or call us at +1 234 567 890.</p>
+                    </div>
+                </section>
+    
+                <section class="help-categories">
+                    <h2>Help Topics</h2>
+                    <div class="help-category-grid">
+                        <a href="{% url 'core:shipping' %}" class="help-category">
+                            <i class="fa fa-truck"></i>
+                            <h3>Shipping & Delivery</h3>
+                            <p>Information on shipping methods, delivery times, and more.</p>
+                        </a>
+                        <a href="{% url 'core:returns' %}" class="help-category">
+                            <i class="fa fa-undo"></i>
+                            <h3>Returns & Refunds</h3>
+                            <p>Learn about returns, exchanges, and refunds for your orders.</p>
+                        </a>
+                        <a href="{% url 'core:account' %}" class="help-category">
+                            <i class="fa fa-user"></i>
+                            <h3>Account Settings</h3>
+                            <p>Manage your account, addresses, and personal details.</p>
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+{% endblock content %} 

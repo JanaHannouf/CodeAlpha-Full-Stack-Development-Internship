@@ -1,0 +1,93 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <div class="contact-main">
+            <div class="container">
+                <section class="contact-info">
+                    <h1>Contact Us</h1>
+                    <p>If you have any questions or need support, feel free to reach out to us through the contact form or our contact details below. We are here to help!</p>
+                    <div class="contact-details">
+                        <div class="contact-detail">
+                            <i class="fa fa-phone"></i>
+                            <h3>Phone</h3>
+                            <p>+1 234 567 890</p>
+                        </div>
+                        <div class="contact-detail">
+                            <i class="fa fa-envelope"></i>
+                            <h3>Email</h3>
+                            <p><a href="mailto:support@mystore.com">support@mystore.com</a></p>
+                        </div>
+                        <div class="contact-detail">
+                            <i class="fa fa-map-marker"></i>
+                            <h3>Address</h3>
+                            <p>123 E-Commerce Street, Shop City, ST 45678</p>
+                        </div>
+                    </div>
+                </section>
+    
+                <section class="contact-form">
+                    <h2>Send Us a Message</h2>
+                    <h4 class="delivered" id="message-response"></h4>
+                    <form action="" method="POST" id="contact-form-ajax">
+                        {% csrf_token %}
+                        <label for="name">Name</label>
+                        <input type="text" id="full_name" name="name" value="{{ profile.full_name }}" required>
+                        
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="{{ profile.email }}" required>
+                        
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" name="subject" required>
+                        
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                        
+                        <button type="submit">Send Message</button>
+                    </form>
+                </section>
+    
+                <section class="map">
+                    <h2>Find Us</h2>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.126398774732!2d-122.41941508468138!3d37.77492927975829!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085808f6d1a8f91%3A0xdeb754fd229af4b2!2s123%20E-Commerce%20St%2C%20San%20Francisco%2C%20CA%2094115!5e0!3m2!1sen!2sus!4v1625179517072!5m2!1sen!2sus" allowfullscreen="" loading="lazy"></iframe>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        $(document).on("submit", "#contact-form-ajax", function(e){
+            e.preventDefault()
+            console.log("Submitted...");
+
+            let full_name = $("#full_name").val()
+            let email = $("#email").val()
+            let subject = $("#subject").val()
+            let message = $("#message").val()
+
+            console.log("Full Name:", full_name);
+            console.log("Email:", email);
+            console.log("Subject:", subject);
+            console.log("Message:", message);
+
+            $.ajax({
+                url: "/ajax-contact-form",
+                data: {
+                    "full_name" : full_name,
+                    "email" : email,
+                    "subject" : subject,
+                    "message" : message,
+                },
+                dataType: "json",
+                beforeSend: function(){
+                    console.log("Sending data to server...")
+                },
+                success: function(response){
+                    console.log("Sent data to server...")
+                    $("#contact-form-ajax").hide()
+                    $("#message-response").html("Your message is sent successfully.")
+                }
+            })
+        })
+    </script>
+{% endblock content %}

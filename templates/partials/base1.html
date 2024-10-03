@@ -1,0 +1,264 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>MyStore - Simple Ecommerce Website</title>
+    <link rel="stylesheet" href="{% static 'assets/CSS/ecommerceStyles.css' %}">
+    <!-- Font Awesome link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- jquery link -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>   
+</head>
+<body>
+    <div class="top-frame">
+        <p>
+            <a href="{% url 'core:about_us' %}" class="group-link">About us</a> |
+            <a href="{% url 'core:account' %}" class="group-link">My Account</a> |
+            <a href="{% url 'core:wishlist' %}" class="group-link">Wishlist</a> 
+        </p>
+        <p>
+            Exclusive Offers - Enjoy More Savings Today!
+        </p>
+        <p>
+            Need help? &nbsp; <a href="{% url 'core:contact' %}" class="contact-us-link"> Contact us </a> &nbsp; |
+            <select name="language"> 
+                <option value="English">English</option> 
+                <option value="Arabic">Arabic</option> 
+            </select>
+            |
+            <select name="currency"> 
+                <option value="USD">USD</option> 
+                <option value="LBP">LBP</option> 
+            </select>
+        </p>
+    </div>
+
+    <header>
+        <div class="logo">
+            <a href="{% url 'core:index' %}"> <img src="{% static 'assets/images/logo.png' %}" alt="Logo"> </a>
+            <a href="{% url 'core:index' %}"> MyStore </a>
+        </div>
+        <div class="browse-categ-container">
+            <i class="fa fa-th-large"></i> &nbsp; Browse Categories &nbsp; <i class="fa fa-caret-down"></i>
+            <div class="categ-dropdown-menu">
+                {% for category in categories %}
+                    <a href="{% url 'core:category_products' category.cid %}" data-value="{{category.title}}">{{category.title}}</a>
+                {% endfor %}
+            </div>
+        </div>
+            <form action="{% url 'core:search_results' %}" method="GET" class="search-container">
+                <input type="text" id="search" name="search" placeholder="Search for items...">  
+                <button id="search-button" type="submit"><i class="fa fa-search"></i></button>
+            </form>       
+        <nav class="nav-links">
+            <a href="{% url 'core:wishlist' %}"> <i class="fa fa-heart-o"></i><sup class="sup-circle">{{ wishlist.count }}</sup> </a> Wishlist
+            <a href="{% url 'core:cart' %}"> <i class="fa fa-shopping-cart"></i><sup class="sup-circle cart-items-count">{{ request.session.cart_data_obj|length }}</sup> </a> Cart
+            <div class="account-menu">
+                <a href="#" class="account-link"> <i class="fa fa-user"></i> </a> Account
+                <div class="dropdown-menu">
+                    <a href="{% url 'core:account' %}">Account Management</a>
+                    {% if request.user.is_authenticated %}
+                    <a href="{% url 'userauths:sign-out' %}" id="logout">Logout</a>
+                    {% else %}
+                    <a href="{% url 'userauths:sign-in' %}">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}}">
+                    <strong>{{ message }}</strong>
+                </div>
+            {% endfor %}
+        {% endif %}
+        <script> 
+            setTimeout (() => {
+                $(".alert").alert("close")
+            },5000)
+        </script>
+    </header>
+
+    
+    {% block content %}
+
+    {% endblock content %}
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Learn more about our mission, vision, and values. We strive to provide the best products at the best prices.</p>
+                <a href="{% url 'core:about_us' %}">Read More</a>
+            </div>
+    
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <ul>
+                    <li><a href="{% url 'core:help' %}">Help Center</a></li>
+                    <li><a href="{% url 'core:returns' %}">Returns & Exchanges</a></li>
+                    <li><a href="{% url 'core:shipping' %}">Shipping Information</a></li>
+                    <li><a href="{% url 'core:privacy' %}">Privacy Policy</a></li>
+                    <li><a href="{% url 'core:terms' %}">Terms & Conditions</a></li>
+                </ul>
+            </div>
+    
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{% url 'core:index' %}">Home</a></li>
+                    <li><a href="{% url 'core:shop' %}">Shop</a></li>
+                    <li><a href="{% url 'core:contact' %}">Contact Us</a></li>
+                </ul>
+            </div>
+    
+            <div class="footer-section">
+                <h3>Stay Connected</h3>
+                <form id="newsletter-form-ajax" class="newsletter-form" method="POST">
+                    {% csrf_token %}
+                    <input type="email" id="subscribe-email" name="subscribe-email" placeholder="Your email address" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+                
+                <div id="subscribe-message" class="delivered"></div>  <!-- Placeholder to display messages -->
+
+                <br>
+                <div class="social-icons">
+                    <a href="#" class="social-icon"><i class="fa fa-facebook"></i></a>
+                    <a href="#" class="social-icon"><i class="fa fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fa fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <div class="footer-bottom">
+        <p>&copy; 2024 MyStore. All rights reserved.</p>
+    </div>
+
+    <script>
+        // Display the dropdown menu of categories
+        document.addEventListener('DOMContentLoaded', function() {
+            const browseCategContainer = document.querySelector('.browse-categ-container');
+            const categDropdownMenu = document.querySelector('.categ-dropdown-menu');
+
+            browseCategContainer.addEventListener('click', function() {
+                if (categDropdownMenu.style.display === 'none' || categDropdownMenu.style.display === '') {
+                    categDropdownMenu.style.display = 'block';
+                } else {
+                    categDropdownMenu.style.display = 'none';
+                }
+            });
+            
+            // Optional: Close the dropdown if clicked outside
+            document.addEventListener('click', function(event) {
+                if (!browseCategContainer.contains(event.target)) {
+                    categDropdownMenu.style.display = 'none';
+                }
+            });
+        });
+
+        // Add to cart button functionality
+        $(".add-to-cart-btn").on("click", function(){
+
+            let this_val = $(this)
+            let index = this_val.attr("data-index")
+
+            let quantity = $(".product-quantity-" + index).val()
+            let product_title = $(".product-title-" + index).val()
+            let product_id = $(".product-id-" + index).val()
+            let product_price = $(".product-price-" + index).val()
+            let product_image = $(".product-image-" + index).val()
+            let product_pid = $(".product-pid-" + index).val()
+
+            console.log("Quantity:",quantity);
+            console.log("Product Title:",product_title);
+            console.log("Product ID:",product_id);
+            console.log("Product PID:",product_pid);
+            console.log("Product Price:",product_price);
+            console.log("Product Image:",product_image);
+            console.log("Index:",index);
+            console.log("Current Element:",this_val);
+
+            $.ajax({
+                url: '/add-to-cart',
+                data: {
+                    'id' : product_id,
+                    'pid' : product_pid,
+                    'image' : product_image,
+                    'qty' : quantity,
+                    'title' : product_title,
+                    'price' : product_price,
+                },
+                dataType: 'json',
+                beforeSend: function(){
+                    console.log("Adding product to cart...");
+                },
+                success: function(response){
+                    this_val.html("Item added to cart &nbsp;<i class='fa fa-check'></i>")
+                    console.log("Added product to cart!");
+                    $(".cart-items-count").text(response.totalCartItems)
+                }
+            })
+        })
+
+        //Add to wishlist button functionality
+        $(document).on("click", "#add-to-wishlist", function(){
+            let product_id = $(this).attr("data-product-item")
+            let this_val = $(this)
+
+            console.log("Product ID:",product_id);
+            console.log("Current Element:",this_val);
+
+            $.ajax({
+                url: "/add-to-wishlist",
+                data: {
+                    "id" : product_id
+                },
+                dataType: "json",
+                beforeSend: function(){
+                    console.log("Adding to wishlist...");
+                },
+                success: function(response){
+                    if(response.bool == true){
+                        this_val.html("Item added to wishlist &nbsp;<i class='fa fa-check'></i>")
+                        console.log("Added to wishlist...");
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000); // 2000 milliseconds = 2 seconds
+                    }
+                }
+            })
+        })
+
+        //Subscribe button functionality
+        $(document).on("submit", "#newsletter-form-ajax", function(e){
+            e.preventDefault()
+            console.log("Submitted...");
+
+            let email = $("#subscribe-email").val()
+
+            console.log("Email:", email);
+            
+            $.ajax({
+                url: "/ajax-subscribe-form",
+                data: {
+                    "email" : email
+                },
+                dataType: "json",
+                beforeSend: function(){
+                    console.log("Sending data to server...")
+                },
+                success: function(response){
+                    console.log("Sent data to server...")
+                    $("#newsletter-form-ajax").hide()
+                    $("#subscribe-message").html("You have subscribed successfully.")
+                }
+            })
+        })
+    </script>
+</body>
+</html>

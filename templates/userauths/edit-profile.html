@@ -1,0 +1,33 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <div class="edit-profile-container">
+            <h2>Edit Profile</h2>
+            <div class="old-profile-image">
+                <p style="text-align: left; font-weight: bold; color: #504f4f;"> Current Profile Photo: </p>
+                {% if profile.image %}
+                    <img src="{{ profile.image.url }}" alt="Profile Picture">
+                {% else %}
+                    <img src="{% static 'assets/images/user-profile.jpg' %}" alt="Profile Picture">
+                {% endif %}
+            <div>
+
+            {% if form.errors %}
+                <div class="alert alert-error">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <strong>{{ field }}: {{ error }}</strong><br>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{form}}
+                <button type="submit" class="save-button">Save Changes</button>
+            </form>
+        </div>
+    </main>
+{% endblock content %} 

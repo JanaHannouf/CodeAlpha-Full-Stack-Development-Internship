@@ -1,0 +1,30 @@
+    <main class="main-background" id="wishlist-list">
+        <section class="wishlist">
+            <h2>Your Wishlist</h2>
+            <div class="wishlist-items">
+                {% for item in wishlist_items %}
+                    <div class="wishlist-item">
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}">
+                        <div class="wishlist-item-details">
+                            <h4> <a href="{% url 'core:product_details' item.product.pid %}" class="wishlist-title-link">{{ item.product.title }} </a></h4>
+                            <p class="price">${{ item.product.price|floatformat:2 }}</p>
+                            <div class="wishlist-actions">
+                                <input type="hidden" value="1" id="p-quantity" class="product-quantity-{{ item.product.id }}">
+                                <input type="hidden" value="{{ item.product.id }}" class="product-id-{{ item.product.id }}">
+                                <input type="hidden" value="{{ item.product.pid }}" class="product-pid-{{ item.product.id }}">
+                                <input type="hidden" value="{{ item.product.title }}" class="product-title-{{ item.product.id }}">
+                                <input type="hidden" value="{{ item.product.price }}" class="product-price-{{ item.product.id }}">
+                                <input type="hidden" value="{{ item.product.image.url }}" class="product-image-{{ item.product.id }}">
+                                <button class="add-to-cart add-to-cart-btn" id="add-to-cart-btn" data-index="{{ item.product.id }}">
+                                    Add to Cart &nbsp;<i class="fa fa-shopping-cart"></i>
+                                </button>
+                                <button class="remove-item delete-wishlist-product" data-wishlist-product="{{ item.id }}"><i class="fa fa-trash"></i> Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                       <p class="canceled" style="font-size: large;"> Nothing is added to your wishlist yet... </p>
+                {% endfor %}
+            </div>
+        </section>                
+    </main>

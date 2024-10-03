@@ -1,0 +1,73 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <section class="about-intro">
+            <div class="container">
+                <h2>About Us</h2>
+                <p>Welcome to MyStore, where we are passionate about bringing you the best products at the best prices. Our mission is to provide an exceptional shopping experience with a wide range of quality products and outstanding customer service.</p>
+            </div>
+        </section>
+        
+        <section class="our-story">
+            <div class="container">
+                <h2>Our Story</h2>
+                <p>Founded in 2024, MyStore started as a small online shop with a vision to offer a curated selection of products to our customers. Over the years, we have grown into a leading e-commerce platform, driven by our commitment to quality and customer satisfaction.</p>
+                <img src="{% static 'assets/images/our-story.png' %}" alt="Our Story">
+            </div>
+        </section>
+
+        <section class="our-team">
+            <div class="container">
+                <h2>Meet the Team</h2>
+                <div class="team-members">
+                    <div class="team-member">
+                        <img src="{% static 'assets/images/user-profile.jpg' %}" alt="Team Member 1">
+                        <h3>Jane Doe</h3>
+                        <p>Founder & CEO</p>
+                    </div>
+                    <div class="team-member">
+                        <img src="{% static 'assets/images/user-profile.jpg' %}" alt="Team Member 2">
+                        <h3>John Smith</h3>
+                        <p>Chief Technology Officer</p>
+                    </div>
+                    <div class="team-member">
+                        <img src="{% static 'assets/images/user-profile.jpg' %}" alt="Team Member 3">
+                        <h3>Emily Johnson</h3>
+                        <p>Marketing Manager</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="our-values">
+            <div class="container">
+                <h2>Our Values</h2>
+                <div class="values">
+                    <div class="value">
+                        <i class="fa fa-heart"></i>
+                        <h3>Customer First</h3>
+                        <p>We prioritize our customers' needs and work hard to exceed their expectations.</p>
+                    </div>
+                    <div class="value">
+                        <i class="fa fa-certificate"></i>
+                        <h3>Quality</h3>
+                        <p>We offer only the highest quality products to ensure satisfaction with every purchase.</p>
+                    </div>
+                    <div class="value">
+                        <i class="fa fa-globe"></i>
+                        <h3>Global Reach</h3>
+                        <p>Our products are available worldwide, delivering excellence to customers everywhere.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-info">
+            <div class="container">
+                <h2>Contact Us</h2>
+                <p>If you have any questions or need support, feel free to <a href="{% url 'core:contact' %}" class="contact-us-link">contact us</a>. We’re here to help!</p>
+            </div>
+        </section>
+    </main>
+{% endblock content %}  

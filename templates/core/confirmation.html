@@ -1,0 +1,51 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <section class="confirmation">
+            <h1>Thank You for Your Order!</h1>
+            <p>Your order has been successfully placed. Below are the details of your order:</p>
+            
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+                <div class="order-details">
+                    <p><strong>Order:</strong> INVOICE_NUMBER-{{ order.id }}</p>
+                    <p><strong>Date:</strong> {{ order.order_date|date:"F d, Y" }} </p>
+                    <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+                </div>
+                
+                <h3>Items Ordered</h3>
+                <ul class="order-items">
+                    {% for item in order_items %}
+                        <li>
+                            <img src="{{ item.image }}" alt="{{ item.title }}">
+                            <div class="item-info">
+                                <p><strong>Product Name:</strong> {{ item.item }} </p>
+                                <p><strong>Price:</strong> ${{ item.price|floatformat:2 }}</p>
+                                <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+                                <p><strong>Total:</strong> ${{ item.total|floatformat:2 }}</p>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                
+                <div class="order-total">
+                    <p><strong>Grand Total:</strong> ${{ cart_total_amount|floatformat:2 }}</p>
+                </div>
+            </div>
+            
+            <div class="shipping-details">
+                <h2>Shipping Information</h2>
+                <p><strong>Name:</strong> {{ order.full_name }}</p>
+                <p><strong>Address:</strong> {{ order.address }}</p>
+                <p><strong>Email:</strong> {{ order.email }} </p>
+                <p><strong>Phone:</strong> {{ order.phone_number }} </p>
+            </div>
+            
+            <div class="actions">
+                <a href="{% url 'core:index' %}" class="continue-shopping-button">Continue Shopping</a>
+                <a href="{% url 'core:account' %}" class="track-order-button">View Your Order History</a>
+            </div>
+        </section>
+    </main>
+{% endblock content %} 

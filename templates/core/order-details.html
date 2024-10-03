@@ -1,0 +1,44 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <div class="order-details-container">
+            <h2>Order Details</h2>
+
+            <div class="order-info">
+                <p><strong>Order ID:</strong> INVOICE_NUMBER-{{ order.id }} </p>
+                <p><strong>Order Date:</strong> {{ order.order_date|date:"F d, Y" }} </p>
+                <p><strong>Order Status:</strong> <span class="{{ order.order_status }}"> {{ order.order_status|capfirst }} </span></p>
+                <p><strong>Grand Total:</strong> ${{ order.price|floatformat:2 }} </p>
+            </div>
+
+            <div class="order-items">
+                <h3>Items</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Image</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                            <tr>
+                                <td> {{ item.item }} </td>
+                                <td> <img src="{{ item.image }}" alt="{{ item.item }}" width="100" height="100"> </td>
+                                <td> {{ item.quantity }} </td>
+                                <td> ${{ item.price }} </td>
+                                <td> ${{ item.total }} </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <a href="{% url 'core:account' %}" class="back-button" id="back-button">Back to Orders</a>
+        </div>
+    </main>
+{% endblock content %} 

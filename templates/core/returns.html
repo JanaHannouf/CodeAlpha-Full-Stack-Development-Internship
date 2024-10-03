@@ -1,0 +1,53 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <div class="returns-header">
+            <div class="banner">
+                <h1>All Sales are Final</h1>
+                <p>Please note that we do not accept returns or exchanges for any products.</p>
+            </div>
+        </div>
+
+        <section class="policy-overview">
+            <h2>Return & Exchange Policy</h2>
+            <p>We do not offer returns or exchanges on any products. Please make sure to review your order before completing your purchase. If you have any issues with your product, feel free to contact our support team for assistance.</p>
+        </section>
+
+        <section class="returns-faq">
+            <h2>Frequently Asked Questions</h2>
+            <div class="returns-faq-item">
+                <h3><i class="fa fa-question-circle"></i> Can I return or exchange my product?</h3>
+                <p>No, we do not allow returns or exchanges for any products once purchased.</p>
+            </div>
+            <div class="returns-faq-item">
+                <h3><i class="fa fa-question-circle"></i> What if my product is damaged or defective?</h3>
+                <p>If you receive a damaged or defective product, please contact our support team for assistance.</p>
+            </div>
+        </section>
+
+        <section class="support">
+            <h2>Need Help?</h2>
+            <p>Contact us through the following channels:</p>
+            <div class="support-options">
+                <div class="support-option">
+                    <p>Live Chat</p>
+                </div>
+                <div class="support-option">
+                    <p>Email Support</p>
+                </div>
+                <div class="support-option">
+                    <p>Phone Support</p>
+                </div>
+                <div class="support-option">
+                    <p>Social Media</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="returns-cta">
+            <h2>Contact Support for Assistance</h2>
+            <a href="{% url 'core:account' %}" class="returns-cta-button">Go to Account </a>
+        </section>
+    </main>
+{% endblock content %}

@@ -1,0 +1,121 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <section class="hero"> 
+            <div class="main-image-container" id="imageContainer">
+                <button id="main-prevBtn" class="main-swipe-button">&#60;</button>
+                <div class="main-image-content">
+                    <img src="{% static 'assets/images/image1.webp' %}" alt="Slide Image">
+                    <button class="shop-now-button" data-url="{% url 'core:shop' %}">Shop Now</button>
+                </div>
+                <button id="main-nextBtn" class="main-swipe-button">&#62;</button>
+            </div>
+            <div class="services-container">
+                <p> <i class="fa fa-truck fa-flip-horizontal"></i> Home Delivery </p> 
+                <p> <i class="fa fa-smile-o"></i> Customer Satisfaction </p>
+                <p> <i class="fa fa-credit-card"></i> Easy Payment </p>   
+                <p> <i class="fa fa-headphones"></i> 24/7 Customer Service </p>
+            </div>
+        </section>
+
+        <section class="featured-products">
+            <h2>Featured Products</h2>
+            <div class="product-grid">
+                {% for product in products %}
+                    <div class="product-item">
+                        <a href="{% url 'core:product_details' product.pid %}">
+                            <div class="discount-label">{{ product.get_percentage }}% OFF</div>
+                            <img src="{{ product.image.url }}" alt="{{ product.title }}">
+                            <p class="product-category">{{ product.category }}</p>
+                            <h3>{{ product.title }}</h3>
+                            <div class="price-container">
+                                <p class="price-before">${{ product.old_price }}</p>
+                                <p class="price-after">${{ product.price }}</p>
+                            </div>
+                        </a>
+                        <div class="button-container">
+                            <input type="hidden" value="1" id="p-quantity" class="product-quantity-{{ product.id }}">
+                            <input type="hidden" value="{{ product.id }}" class="product-id-{{ product.id }}">
+                            <input type="hidden" value="{{ product.pid }}" class="product-pid-{{ product.id }}">
+                            <input type="hidden" value="{{ product.title }}" class="product-title-{{ product.id }}">
+                            <input type="hidden" value="{{ product.price }}" class="product-price-{{ product.id }}">
+                            <input type="hidden" value="{{ product.image.url }}" class="product-image-{{ product.id }}">
+                            <button class="add-to-cart-button add-to-cart-btn" id="add-to-cart-btn" data-index="{{ product.id }}">
+                                Add to Cart &nbsp;&nbsp;<i class="fa fa-shopping-cart"></i>
+                            </button>
+                            <button class="add-to-wishlist-button" id="add-to-wishlist" data-product-item="{{ product.id }}">
+                                Add to Wishlist &nbsp;<i class="fa fa-heart-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>                
+    </main>
+
+    <script>
+        // Select the shop-now button
+        const shopNowButton = document.querySelector('.shop-now-button');
+
+        // Add an event listener for the click event
+        shopNowButton.addEventListener('click', function() {
+            // Get the URL from the data-url attribute
+            const url = this.getAttribute('data-url');
+            // Redirect to the shop page
+            window.location.href = url;
+        });
+
+        // Array of image URLs
+        const images = [
+            "{% static 'assets/images/image1.webp' %}",
+            "{% static 'assets/images/image2.jpg' %}",
+            "{% static 'assets/images/image3.webp' %}",
+            "{% static 'assets/images/image4.jpg' %}"
+        ];
+    
+        // Index to track the current image
+        let currentIndex = 0;
+    
+        // Function to display the current image
+        function displayImage(index) {
+            const imgElement = document.querySelector('.main-image-content img');
+            imgElement.src = images[index];
+            imgElement.alt = `Image ${index + 1}`;
+        }
+    
+        // Display the first image initially
+        displayImage(currentIndex);
+    
+        // Event listeners for buttons
+        document.getElementById('main-prevBtn').addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            displayImage(currentIndex);
+        });
+    
+        document.getElementById('main-nextBtn').addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % images.length;
+            displayImage(currentIndex);
+        });
+    
+        // Function to automatically advance the image
+        function autoSwipe() {
+            currentIndex = (currentIndex + 1) % images.length;
+            displayImage(currentIndex);
+        }
+    
+        // Set interval to automatically change image every 5 seconds (5000 milliseconds)
+        let swipeInterval = setInterval(autoSwipe, 5000);
+    
+        // Optional: Clear interval on mouse hover over image container to stop auto swipe
+        document.querySelector('.main-image-container').addEventListener('mouseover', () => {
+            clearInterval(swipeInterval);
+        });
+    
+        // Optional: Restart interval on mouse leave from image container
+        document.querySelector('.main-image-container').addEventListener('mouseleave', () => {
+            clearInterval(swipeInterval); // Clear existing interval
+            swipeInterval = setInterval(autoSwipe, 5000); // Restart auto swipe after leave
+        });
+    </script>
+{% endblock content %}
