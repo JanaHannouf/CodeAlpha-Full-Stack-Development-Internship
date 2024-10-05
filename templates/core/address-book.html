@@ -1,0 +1,108 @@
+{% extends 'partials/base1.html' %}
+{% load static %}
+{% block content %}
+    <main class="main-background">
+        <div class="account-container">
+            <div class="head">
+                <h1>My Account</h1>
+                <p class="welcome-message" id="welcomeMessage">Welcome back, {{ request.user|title }}!</p>
+            </div>
+                
+            <div class="tabs">
+                <button id="profile-tab" class="btn-link" data-url="{% url 'core:account' %}">Profile</button>
+                <button id="order-history-tab" class="btn-link" data-url="{% url 'core:order-history' %}">Orders</button>
+                <button id="wishlist-section-tab" class="btn-link" data-url="{% url 'core:account-wishlist' %}">Wishlist</button>
+                <button id="address-book-tab" class="active btn-link" data-url="{% url 'core:address-book' %}">Address Book</button>
+                <button id="account-settings-tab" class="btn-link" data-url="{% url 'core:account-settings' %}">Account Settings</button>
+            </div>
+    
+            <div class="tab-section address-book">
+                <h2>Address Book</h2>
+                
+                <!-- Existing Address List -->
+                {% for adr in address %}
+                    <div class="address-item">
+                        <p><strong>Address:</strong> {{ adr.address }}</p><br>
+                        <p><strong>Phone Number:</strong> {{ adr.phone_number }}</p><br>
+                        {% if adr.status == True %}
+                            <p data-address-id="{{ adr.id }}" class="check{{ adr.id }} check"> 
+                                <span class="delivered">
+                                    <i class="fa fa-check-circle" style="font-size: large;"></i>
+                                </span>
+                            </p><br>
+                            <button data-address-id="{{ adr.id }}" class="edit-button make-default-address button{{ adr.id }} action_btn" style="display: none;">Make Default</button>
+                        {% else %}
+                            <p data-address-id="{{ adr.id }}" class="check{{ adr.id }} check" style="display: none;"> 
+                                <span class="delivered">
+                                    <i class="fa fa-check-circle" style="font-size: large;"></i>
+                                </span>
+                            </p><br>
+                            <button data-address-id="{{ adr.id }}" class="edit-button make-default-address button{{ adr.id }} action_btn">Make Default</button>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <!-- Add New Address Form -->
+                <div class="add-address-form">
+                    <h3>Add New Address</h3>
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <label for="address">Address:</label>
+                        <input type="text" name="address" placeholder="Enter your address" required="">
+            
+                        <label for="phone_number">Phone Number:</label>
+                        <input type="text" name="phone" placeholder="Enter your phone number" required="">
+            
+                        <button type="submit" class="submit-button">Add Address</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Tabs navigation
+        const buttons = document.querySelectorAll('.btn-link');
+        buttons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                const url = button.getAttribute('data-url');
+                if (url) {
+                    window.location.href = url;
+                } else {
+                    console.log('No URL specified for this button.');
+                }
+            });
+        });
+
+        // Make Default Address Button Functionality
+        $(document).on("click", ".make-default-address", function(){
+            let id = $(this).attr("data-address-id");
+            let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value; // Get CSRF token
+
+            console.log("Address ID:", id);
+
+            $.ajax({
+                url: "/make-default-address/",  // Ensure this matches the path in urls.py
+                method: "POST",
+                data: {
+                    "id": id,
+                    "csrfmiddlewaretoken": csrfToken
+                },
+                dataType: "json",
+                success: function(response){
+                    if (response.boolean === true) {
+                        $(".check").hide();
+                        $(".action_btn").show();
+                        $(".check" + id).show();
+                        $(".button" + id).hide();
+                    } else {
+                        console.log("Failed to update the address.");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error updating address:", error);
+                }
+            });
+        });
+    </script>
+{% endblock content %}

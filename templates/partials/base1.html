@@ -184,7 +184,8 @@
             console.log("Current Element:",this_val);
 
             $.ajax({
-                url: '/add-to-cart',
+                url: '/add-to-cart/',
+                type: 'POST',
                 data: {
                     'id' : product_id,
                     'pid' : product_pid,
@@ -194,6 +195,9 @@
                     'price' : product_price,
                 },
                 dataType: 'json',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
                 beforeSend: function(){
                     console.log("Adding product to cart...");
                 },
@@ -202,7 +206,7 @@
                     console.log("Added product to cart!");
                     $(".cart-items-count").text(response.totalCartItems)
                 }
-            })
+            });
         })
 
         //Add to wishlist button functionality

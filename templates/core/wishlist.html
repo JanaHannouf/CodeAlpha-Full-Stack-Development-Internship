@@ -35,26 +35,31 @@
     <script>
         // Remove from wishlist button functionality
         $(document).on("click", ".delete-wishlist-product", function(){
-            let wishlist_id = $(this).attr("data-wishlist-product")
-            let this_val = $(this)
+            let wishlist_id = $(this).attr("data-wishlist-product");
+            let this_val = $(this);
 
             console.log("Wishlist ID:", wishlist_id);
             console.log("Element:", this_val);
 
             $.ajax({
-                url: "/remove-from-wishlist",
+                url: "{% url 'core:remove-from-wishlist' %}",
                 data: {
-                    "id" : wishlist_id,
+                    "id": wishlist_id,
                 },
                 dataType: "json",
                 beforeSend: function(){
                     console.log("Deleting product from wishlist...");
                 },
                 success: function(response){
-                    $("#wishlist-list").html(response.data)
-                    location.reload();
+                    if (response.data) {
+                        $("#wishlist-list").html(response.data);  // Replace the wishlist with the updated content
+                        location.reload();  // Reload the page if necessary
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error removing product from wishlist:", error);
                 }
-            })
-        })
+            });
+        });
     </script>
 {% endblock content %}

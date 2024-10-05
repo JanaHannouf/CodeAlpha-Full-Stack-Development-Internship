@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from userauths.forms import UserRegisterForm, ProfileForm
@@ -88,7 +89,7 @@ def change_password(request):
             form.save()
             update_session_auth_hash(request, form.user)
             messages.success(request, "Your password has been changed successfully.")
-            return redirect("core:account")
+            return redirect("core:account-settings")
     else:
         form = PasswordChangeForm(user=request.user)
 
@@ -97,14 +98,27 @@ def change_password(request):
     }
     return render(request, 'userauths/change-password.html', context)
 
+logger = logging.getLogger(__name__)
+
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'userauths/password-reset-confirm.html'
     success_url = reverse_lazy('userauths:password_reset_complete')
 
     def dispatch(self, *args, **kwargs):
-        print("View is being accessed")  # Debugging line
+        uidb64 = kwargs.get('uidb64')
+        token = kwargs.get('token')
+        print(f"Received UID: {uidb64}, Token: {token}")  # Debugging line
         return super().dispatch(*args, **kwargs)
 
     def form_valid(self, form):
-        print("Password change successful!")  # Debugging line
+        print("Password change successful!")
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.error("Password change failed: %s", form.errors)
+        return super().form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['validlink'] = True  # Ensure validlink is set to true
+        return context

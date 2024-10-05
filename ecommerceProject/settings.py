@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     'taggit',
     'ckeditor',
@@ -48,6 +49,8 @@ INSTALLED_APPS = [
     'core',
     'userauths',
 ]
+
+SITE_ID = 1 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -178,6 +181,8 @@ CKEDITOR_CONFIGS = {
         ),
     }
 }
+
+APPEND_SLASH=False
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = 'smtp.gmail.com'

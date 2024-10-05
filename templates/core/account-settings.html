@@ -9,33 +9,36 @@
             </div>
                 
             <div class="tabs">
-                <button id="profile-tab" class="active btn-link" data-url="{% url 'core:account' %}">Profile</button>
+                <button id="profile-tab" class="btn-link" data-url="{% url 'core:account' %}">Profile</button>
                 <button id="order-history-tab" class="btn-link" data-url="{% url 'core:order-history' %}">Orders</button>
                 <button id="wishlist-section-tab" class="btn-link" data-url="{% url 'core:account-wishlist' %}">Wishlist</button>
                 <button id="address-book-tab" class="btn-link" data-url="{% url 'core:address-book' %}">Address Book</button>
-                <button id="account-settings-tab" class="btn-link" data-url="{% url 'core:account-settings' %}">Account Settings</button>
+                <button id="account-settings-tab" class="active btn-link" data-url="{% url 'core:account-settings' %}">Account Settings</button>
             </div>
     
-            <div class="tab-section profile-info">
-                <h2>Profile Overview</h2>
-                <div class="details">
-                    {% if profile.image %}
-                        <img src="{{ profile.image.url }}" alt="Profile Picture">
-                    {% else %}
-                        <img src="{% static 'assets/images/user-profile.jpg' %}" alt="Profile Picture">
-                    {% endif %}
-                    <div>
-                        <p><strong> Full Name: </strong> {{ profile.full_name }}</p>
-                        <p><strong> Email: </strong> {{ profile.email }}</p>
-                        <a href="{% url 'userauths:edit_profile' %}" class="edit-button">
-                            <i class="fa fa-pencil"></i> Edit Profile
-                        </a>
-                    </div>
-                </div>
-            </div>                                  
+            <div class="tab-section account-settings">
+                <h2>Account Settings</h2>
+
+                <!-- Security Section -->
+                <section class="security">
+                    <h3>Security</h3>
+                    <a href="{% url 'userauths:change-password' %}" class="change-password-button" id="change-password-btn"><i class="fa fa-lock"></i> Change Password</a>
+                </section>
+            
+                <!-- Notifications Section -->
+                <section class="notifications">
+                    <h3>Notifications</h3>
+                    <label>
+                        <input type="checkbox" checked> Order Updates
+                    </label>
+                    <label>
+                        <input type="checkbox" checked> Promotional Emails
+                    </label>
+                </section>
+            </div>  
         </div>
     </main>
-    
+
     <script>
         // Select all buttons
         const buttons = document.querySelectorAll('.btn-link');
@@ -54,5 +57,5 @@
                 }
             });
         });
-    </script>         
+    </script>
 {% endblock content %} 

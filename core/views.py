@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 from userauths.models import Profile, ContactUs
+from django.contrib.auth.models import AnonymousUser
 
 # Create your views here.
 def index(request):
@@ -126,54 +127,63 @@ def ajax_add_review(request, pid):
     product = Product.objects.get(pid=pid)
     user = request.user
 
+    # Create the review
     review = ProductReview.objects.create(
-        user = user,
-        product = product,
-        review = request.POST['review'],
-        rating = request.POST['rating']
+        user=user,
+        product=product,
+        review=request.POST['review'],
+        rating=request.POST['rating']
     )
 
+    # Get user's profile image (if available)
+    profile_image_url = user.profile.image.url if user.profile.image else None
+
     context = {
-        'user' : user.username,
-        'review' : request.POST['review'],
-        'rating' : request.POST['rating'],
+        'user': user.username,
+        'review': request.POST['review'],
+        'rating': request.POST['rating'],
+        'profile_image_url': profile_image_url  # Include profile image URL in context
     }
 
     average_reviews = ProductReview.objects.filter(product=product).aggregate(rating=Avg('rating'))
 
     return JsonResponse(
         {
-            'bool' : True,
-            'context' : context,
-            'average_reviews' : average_reviews
+            'bool': True,
+            'context': context,
+            'average_reviews': average_reviews
         }
     )
 
 def add_to_cart(request):
-    cart_product = {}
+    if request.method == 'POST':
+        cart_product = {}
 
-    cart_product[str(request.GET['id'])] = {
-        'title' : request.GET['title'],
-        'qty' : request.GET['qty'],
-        'price' : request.GET['price'],
-        'image' : request.GET['image'],
-        'pid' : request.GET['pid']
-    }
+        # Use request.POST instead of request.GET
+        cart_product[str(request.POST['id'])] = {
+            'title' : request.POST['title'],
+            'qty' : request.POST['qty'],
+            'price' : request.POST['price'],
+            'image' : request.POST['image'],
+            'pid' : request.POST['pid']
+        }
 
-    if 'cart_data_obj' in request.session:
-        if str(request.GET['id']) in request.session['cart_data_obj']:
-            cart_data = request.session['cart_data_obj']
-            cart_data[str(request.GET['id'])]['qty'] = int(cart_product[str(request.GET['id'])]['qty'])
-            cart_data.update(cart_data)
-            request.session['cart_data_obj'] = cart_data
+        if 'cart_data_obj' in request.session:
+            if str(request.POST['id']) in request.session['cart_data_obj']:
+                cart_data = request.session['cart_data_obj']
+                cart_data[str(request.POST['id'])]['qty'] = int(cart_product[str(request.POST['id'])]['qty'])
+                cart_data.update(cart_data)
+                request.session['cart_data_obj'] = cart_data
+            else:
+                cart_data = request.session['cart_data_obj']
+                cart_data.update(cart_product)
+                request.session['cart_data_obj'] = cart_data
         else:
-            cart_data = request.session['cart_data_obj']
-            cart_data.update(cart_product)
-            request.session['cart_data_obj'] = cart_data
-    else:
-        request.session['cart_data_obj'] = cart_product
+            request.session['cart_data_obj'] = cart_product
+
+        return JsonResponse({"data": request.session['cart_data_obj'], 'totalCartItems': len(request.session['cart_data_obj'])})
     
-    return JsonResponse({"data": request.session['cart_data_obj'], 'totalCartItems': len(request.session['cart_data_obj'])})
+    return JsonResponse({"error": "Invalid request method"}, status=400)
 
 def cart(request):
     cart_total_amount = 0
@@ -222,13 +232,17 @@ def update_cart(request):
     context = render_to_string("core/async/cart-list.html", {"cart_data": request.session['cart_data_obj'], 'totalCartItems': len(request.session['cart_data_obj']), 'cart_total_amount': cart_total_amount}) 
     return JsonResponse({"data": context, 'totalCartItems': len(request.session['cart_data_obj'])})
 
-
 @login_required    
 def checkout(request):
     profile = Profile.objects.get(user=request.user)
     order_id = None
     cart_total_amount = 0
-    total_amount = 0
+
+    # Calculate the total amount of the cart data
+    if 'cart_data_obj' in request.session:
+        for p_id, item in request.session['cart_data_obj'].items():
+            cart_total_amount += int(item['qty']) * float(item['price'])
+
     if request.method == "POST":
         full_name = request.POST.get("full_name")
         email = request.POST.get("email")
@@ -236,51 +250,56 @@ def checkout(request):
         address = request.POST.get("address")
         payment_method = request.POST.get("payment_method")
 
+        total_amount = 0  # This will hold the total amount to store in the order
+
         if 'cart_data_obj' in request.session:
             for p_id, item in request.session['cart_data_obj'].items():
                 total_amount += int(item['qty']) * float(item['price'])
 
+            # Create order
             order = CartOrder.objects.create(
-                user = request.user,
-                full_name = full_name,
-                email = email,
-                phone_number = phone_number,
-                address = address,
-                payment_method = payment_method,
-                price = total_amount,
+                user=request.user,
+                full_name=full_name,
+                email=email,
+                phone_number=phone_number,
+                address=address,
+                payment_method=payment_method,
+                price=total_amount,
             )
             order_id = order.id
 
+            # Add items to the order
             for p_id, item in request.session['cart_data_obj'].items():
-                cart_total_amount += int(item['qty']) * float(item['price'])
-                cart_order_items = CartOrderItems.objects.create(
-                    order = order,
-                    invoice_number = "INVOICE_NUMBER" + str(order.id),
-                    item = item['title'],
-                    image = item['image'],
-                    quantity = item['qty'],
-                    price = item['price'],
-                    total = float(item['qty']) * float(item['price'])
+                CartOrderItems.objects.create(
+                    order=order,
+                    invoice_number="INVOICE_NUMBER" + str(order.id),
+                    item=item['title'],
+                    image=item['image'],
+                    quantity=item['qty'],
+                    price=item['price'],
+                    total=float(item['qty']) * float(item['price'])
                 )
 
         return redirect("core:confirmation", order_id=order_id)
 
+    # Get active address
     try:
         active_address = Address.objects.get(user=request.user, status=True)
-    except:
+    except Address.DoesNotExist:
         messages.warning(request, "There are multiple addresses, only one should be activated.")
         active_address = None
 
+    # Render checkout template with cart total
     return render(request, 'core/checkout.html', 
         {
             "cart_data": request.session['cart_data_obj'], 
             'totalCartItems': len(request.session['cart_data_obj']), 
             'cart_total_amount': cart_total_amount, 
             'active_address': active_address,
-            'profile' : profile
+            'profile': profile
         }
-    )   
-
+    )
+ 
 @login_required
 def confirmation(request, order_id):
     order = CartOrder.objects.get(id=order_id)
@@ -305,30 +324,56 @@ def confirmation(request, order_id):
 
 @login_required
 def account(request):
-    orders = CartOrder.objects.filter(user=request.user).order_by("-id")
-    addresses = Address.objects.filter(user=request.user)
     profile = Profile.objects.get(user=request.user)
+    
+    context = {
+        'profile' : profile,
+    }
+    return render(request, 'core/account.html', context)
+
+def order_history(request):
+    orders = CartOrder.objects.filter(user=request.user).order_by("-id")
+
+    context = {
+        "orders": orders,
+    }
+    return render(request, 'core/order-history.html', context)
+
+def account_wishlist(request):
     wishlist = Wishlist.objects.filter(user=request.user)
+
+    context = {
+        'wishlist' : wishlist,
+    }
+    return render(request, 'core/account-wishlist.html', context)
+
+def address_book(request):
+    addresses = Address.objects.filter(user=request.user)
 
     if request.method == "POST":
         address = request.POST.get("address")
         phone = request.POST.get("phone")
 
-        new_address = Address.objects.create(
-            user=request.user,  
-            address=address,
-            phone_number=phone
-        )
-        messages.success(request, "Address added successfully.")
-        return redirect("core:account")
+        if address and phone:
+            # Save new address
+            new_address = Address.objects.create(
+                user=request.user,  
+                address=address,
+                phone_number=phone
+            )
+            messages.success(request, "Address added successfully.")
+        else:
+            messages.error(request, "Both address and phone number are required.")
+        
+        return redirect("core:address-book")
 
     context = {
-        "orders": orders,
         "address": addresses,
-        'profile' : profile,
-        'wishlist' : wishlist
     }
-    return render(request, 'core/account.html', context)
+    return render(request, 'core/address-book.html', context)
+
+def account_settings(request):
+    return render(request, 'core/account-settings.html')
 
 def order_details(request, id):
     order = CartOrder.objects.get(user=request.user, id=id)
@@ -340,11 +385,21 @@ def order_details(request, id):
     }
     return render(request, 'core/order-details.html', context)
 
-def make_address_default(request):
-    id = request.GET['id']
-    Address.objects.update(status=False)
-    Address.objects.filter(id=id).update(status=True)
-    return JsonResponse({"boolean": True})
+def make_default_address(request):
+    if request.method == "POST":
+        address_id = request.POST.get("id")
+        try:
+            # Reset all addresses for the user
+            Address.objects.filter(user=request.user).update(status=False)
+
+            # Set the selected address as default
+            address = Address.objects.get(id=address_id, user=request.user)
+            address.status = True
+            address.save()
+
+            return JsonResponse({"boolean": True})
+        except Address.DoesNotExist:
+            return JsonResponse({"boolean": False}, status=400)
 
 def add_to_wishlist(request):
     product_id = request.GET['id']
@@ -368,45 +423,73 @@ def add_to_wishlist(request):
     return JsonResponse(context)
 
 def remove_wishlist(request):
-    pid = request.GET['id']
-    wishlist = Wishlist.objects.filter(user=request.user)
+    if request.method == 'GET':
+        pid = request.GET.get('id')
+        
+        if not pid:
+            return JsonResponse({"error": "Product ID not provided"}, status=400)
+        
+        try:
+            # Ensure the product belongs to the current user's wishlist
+            product = Wishlist.objects.get(id=pid, user=request.user)
+            product.delete()
+            
+            # Retrieve the updated wishlist for the current user
+            wishlist = Wishlist.objects.filter(user=request.user)
 
-    product = Wishlist.objects.get(id=pid)
-    product.delete()
+            context = {
+                "bool": True,
+                "wishlist": wishlist,
+            }
+            
+            # Render the updated wishlist HTML content
+            data = render_to_string("core/async/wishlist-list.html", context)
+            
+            # Optionally serialize the updated wishlist (if needed elsewhere in your app)
+            wishlist_json = serializers.serialize('json', wishlist)
 
-    context = {
-        "bool" : True,
-        "wishlist" : wishlist,
-    }
-    wishlist__json = serializers.serialize('json', wishlist)
-    data = render_to_string("core/async/wishlist-list.html", context)
-    return JsonResponse({"data":data, "wishlist_items": wishlist__json})
+            return JsonResponse({"data": data, "wishlist_items": wishlist_json})
+
+        except Wishlist.DoesNotExist:
+            return JsonResponse({"error": "Item not found in wishlist"}, status=404)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 def contact(request):
-    profile = Profile.objects.get(user=request.user)
+    profile = None
+    # Check if the user is authenticated before fetching the profile
+    if request.user.is_authenticated:
+        profile = Profile.objects.get(user=request.user)
+    else:
+        profile = AnonymousUser()  # Use a placeholder or pass None
 
     context = {
-        "profile" : profile
+        "profile": profile
     }
     return render(request, 'core/contact.html', context)
 
 def ajax_contact_form(request):
-    full_name = request.GET['full_name']
-    email = request.GET['email']
-    subject = request.GET['subject']
-    message = request.GET['message']
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
 
-    contact = ContactUs.objects.create(
-        full_name = full_name,
-        email = email,
-        subject = subject,
-        message = message
-    )
+        # Save the contact message
+        contact = ContactUs.objects.create(
+            full_name=full_name,
+            email=email,
+            subject=subject,
+            message=message
+        )
 
-    context = {
-        "bool" : True,
-    }
-    return JsonResponse({"data":context})
+        context = {
+            "bool": True,
+        }
+        return JsonResponse({"data": context})
+
+    # If the request is not POST, return an error
+    return JsonResponse({"error": "Invalid request method"}, status=400)
 
 def ajax_subscribe_newsletter(request):
     email = request.GET['email']

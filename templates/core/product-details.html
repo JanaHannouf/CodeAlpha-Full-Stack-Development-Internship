@@ -236,7 +236,7 @@
             element.preventDefault();
 
             let dt = new Date();
-            let time = dt.getDay() + " " + monthNames[dt.getUTCMonth()] + ", " + dt.getFullYear()
+            let time = dt.getDay() + " " + monthNames[dt.getUTCMonth()] + ", " + dt.getFullYear();
 
             $.ajax({
                 data: $(this).serialize(),
@@ -244,34 +244,41 @@
                 url: $(this).attr("action"),
                 dataType: "json",
 
-                success: function(response){
+                success: function(response) {
                     console.log("Comment Saved to DB...");
 
                     if(response.bool == true){
-                        $("#review-response").html("Your review is added successfully.")
-                        $(".hide-comment-form").hide()
-                        $(".add-review-title").hide()
+                        $("#review-response").html("Your review is added successfully.");
+                        $(".hide-comment-form").hide();
+                        $(".add-review-title").hide();
 
-                        let _html = '<div class="review">'
-                            _html += '<div class="review-header">'
-                            _html += '<img class="review-profile-picture" src="https://as1.ftcdn.net/v2/jpg/03/39/45/96/1000_F_339459697_XAFacNQmwnvJRqe1Fe9VOptPWMUxlZP8.jpg" alt="profile picture">'
-                            _html += '<span class="review-author">'+ response.context.user +'</span>'
-                            _html += '<span class="review-date">'+ time +'</span>'
-                            _html += '<span class="review-rating">' 
-                            
-                            for(let i=1; i <= response.context.rating; i++){
-                                _html += '<i class="fa fa-star"></i>'
-                            }
+                        let profileImageUrl = response.context.profile_image_url ? response.context.profile_image_url : "{% static 'assets/images/user-profile.jpg' %}";
 
-                            _html += '</span>'
-                            _html += '</div>'
-                            _html += '<p>'+ response.context.review +'</p>'
-                            _html += '</div>'
+                        let _html = '<div class="review">';
+                        _html += '<div class="review-header">';
+                        _html += '<img class="review-profile-picture" src="'+ profileImageUrl +'" alt="profile picture">';
+                        _html += '<span class="review-author">'+ response.context.user +'</span>';
+                        _html += '<span class="review-date">'+ time +'</span>';
+                        _html += '<span class="review-rating">';
 
-                        $(".customer-reviews-container").prepend(_html)
+                        for(let i = 1; i <= response.context.rating; i++){
+                            _html += '<i class="fa fa-star"></i>';
+                        }
+
+                        _html += '</span>';
+                        _html += '</div>';
+                        _html += '<p>'+ response.context.review +'</p>';
+                        _html += '</div>';
+
+                        $(".customer-reviews-container").prepend(_html);
+
+                        // Delay the reload for 2 seconds
+                        setTimeout(function() {
+                            location.reload(); 
+                        }, 2000); // 2000 milliseconds = 2 seconds
                     }
                 }
-            })
-        })
+            });
+        });
     </script>
 {% endblock content %}
